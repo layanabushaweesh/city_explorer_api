@@ -1,67 +1,85 @@
-'use strict'
-// load the express mod. to our script
-require('dotenv').config(); 
+'use strict'; 
+
+// this code i weite it after code wrviwe
+const dotenv = require('dotenv'); 
+dotenv.config();
+const PORT = process.env.PORT || 3000; 
+const express = require('express'); 
+let app = express(); 
+
 const cors = require('cors');
-app.use(cors());
 
-// value of port
-const PORT = process.env.PORT || 3000;
+app.use(cors()); 
 
-// Creates a server application.
+app.get('/location', handleLocation); 
+app.get('/weather', handleWeather); 
 
-const app = express();
-//constructor fun for location
-function Location(name,location,latitude,longitude){
-    this.search_query =  name,
-    this.formatted_query = location,
-    this.latitude = latitude,
-    this.longitude = longitude
+app.get('*', handleErrors); 
+
+
+
+function handleLocation(req, res) {
+    try {
+        let srchQ = req.query.city; 
+        let locationObj = locationData(srchQ); 
+        res.status(200).json(locationObj);
+    } catch (error) {
+        res.status(500).send(`wrong ${error}`);
+    }
+}
+
+function handleWeather(req, res) {
+    let searchQuery = req.query.city;
+    let wthrObj = dataWether(searchQuery);
+    try {
+        res.status(200).send(wthrObj);
+    } catch (error) {
+        res.status(500).send(` wrong ${error}`);
+    }
+}
+function handleErrors(req, res) {
+    res
+        .status(404)
+        .send({ status: 404, responseText: 'Sorry not exist' });
+}
+
+function CityLocation(srchQ, dsplyNam, lat, long) {
+    this.search_query = srchQ;
+    this.formatted_query = dsplyNam;
+    this.latitude = lat;
+    this.longitude = long;
+}
+
+function CityWeather(srchQ, wthrDesc, time) {
+    this.search_query = srchQ;
+    this.forecast = wthrDesc;
+    this.time = time;
 }
 
 
-//set a rout for handle
-// handle to get request to yhe path
-app.get('/location',handleLocation )
-
-//request are handle bt call back
-//express need parameter
-const handleLocation = (request, response,next) => {
-
- const dataArr = require('./data/location.json');
-    const data = dataArr[0];
-    response.status(200).json(new Location(request.query.city,data.display_name,data.lat,data.lon));
-    next();
-
-
+function dataWether(searchQuery) {
+    let wthrData = require('./data/weather.json');
+    let wthrArry = [];
+    for (let i = 0; i < wthrData.data.length; i++) {
+        let weatherDesc = wthrData.data[i].weather['description'];
+       
+    
+        let resObj = new CityWeather(searchQuery, weatherDesc, newDate);
+        wthrArry.push(resObj);
+    }
+    return wthrArry;
 }
 
-//constructor for wether
-function Weather(description,valid_date){
-    this.forecast = description,
-    this.time = valid_date;
+function locationData(searchQuery) {
+   
+    let locationData = require('./data/location.json');
+    let displayName = locationData[0].display_name;
+    let latitude = locationData[0].lat;
+    let longitude = locationData[0].lon;
+    let resObj = new CityLocation(searchQuery, displayName, latitude, longitude);
+    return resObj;
 }
-
-//set a rout for handle
-// handle to get request to yhe path
-
-app.get('/weather', handleWether )
-
-const handleWether = (request, response)=>{
-
-    const objData = require('./data/weather.json');
-    const weatherData = objData.data;
-    const returnedData = [];
-    weatherData.forEach(a=>{
-        returnedData.push(new Weather(a.weather.description,a.valid_date))
-    })
-    response.status(200).json(returnedData);
-}
-
-
-
-
-
-//we should add lisnter to the port
 app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-});
+    
+    console.log(`the app is listening to ${PORT}`); /
+})
