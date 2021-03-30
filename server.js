@@ -1,4 +1,14 @@
 'use strict';
+const pg = require('pg');
+
+const options = NODE_ENV === 'production' ? { connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } } : { connectionString: DATABASE_URL};
+const client = new pg.Client(options);
+client.on('error', err => { throw err; });
+
+
+client.connect().then(() => {
+ 
+
 
 // Load Environment Variables from the .env file
 require('dotenv').config();
@@ -28,21 +38,17 @@ app.get('/weather', handleWeather)
 app.use('*', notFoundHandler)
 // function for rote
 function handleLocation(req, res) {
+    const pg = require('pg');
 
-    let city = req.query.city;
-    let key = process.env.GEOCODE_API_KEY;
-    const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
-
-    if (locations[url]) {
-        res.send(locations[url]);
-    } else {
-        superagent.get(url)
-            .then(data => {
-                console.log(data);
-                const geoData = data.body[0];
-                const locationInfo = new Location(city, geoData);
-                locations[url] = locationInfo;
-                res.send(locationInfo);
+    const options = NODE_ENV === 'production' ? { connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } } : { connectionString: DATABASE_URL};
+    const client = new pg.Client(options);
+    client.on('error', err => { throw err; });
+    
+    
+    client.connect().then(() => {
+     
+    
+   
             })
             .catch((err) => errorHandler(err, request, response));
     }
@@ -51,9 +57,7 @@ function handleLocation(req, res) {
         res.status(500).send(error);
     }
     
-    function notFoundHandler(req, res) {
-        res.status(404).send('not found!');
-    }
+    
     
     function CityLocation(srchQ, dsplyNam, lat, long) {
         this.search_query = srchQ;
@@ -69,20 +73,6 @@ function handleLocation(req, res) {
     }
 
 
-function handleWeather(req, res) {
-    try {
-        const weather = require('./data/weather.json');
-        const weatherRender = [];
-        weather.data.map(day => {
-            weatherRender.push(new Weather(day));
-
-        })
-        res.status(200).json(weatherRender);
-
-    } catch (error) {
-        errorHandler(error, request, response);
-    }
-};
 
 
 
@@ -95,4 +85,6 @@ function handleWeather(req, res) {
 
 
 
-}
+
+
+
