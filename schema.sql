@@ -1,7 +1,8 @@
-DROP TABLE IF EXISTS locations;
-
-CREATE TABLE locations (
-    id SERIAL PRIMARY KEY,
-    display_name VARCHAR(255),
-    city VARCHAR(255)
+DROP TABLE IF EXISTS TABLES;
+CREATE TABLE TABLES (
+    id        SERIAL PRIMARY KEY,
+    name      VARCHAR(255),
+    location  VARCHAR(255),
+    latitude  VARCHAR(255),
+    longitude VARCHAR(255)
 );
