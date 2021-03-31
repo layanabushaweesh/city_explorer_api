@@ -1,3 +1,4 @@
+
 'use strict'; 
 // load enviroment variable its the first step
 const dotenv = require('dotenv'); 
@@ -102,3 +103,19 @@ function Weather(description, valid_date) {
     this.forecast = description;
     this.time = valid_date;
 }
+
+
+
+
+    app.listen(PORT, () => {
+        console.log(`listin port ${PORT}`);
+    });
+
+
+
+
+
+
+
+
+
