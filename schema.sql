@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS TABLES ;
+DROP TABLE IF EXISTS location ;
 
-CREATE TABLE TABLES (
+CREATE TABLE location (
     id SERIAL PRIMARY KEY,
     search_query   VARCHAR(225),
   formatted_query VARCHAR(225),

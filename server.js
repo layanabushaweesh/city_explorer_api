@@ -12,13 +12,13 @@ const pg = require('pg')
 //our keys
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
-const DATABASE_URl = process.env.DATABASE_URl;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 const NODE_ENV = process.env.NODE_ENV;
 
 
 // Setup our connection options based on environment
-const options = NODE_ENV === 'production' ? { connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } } : { connectionString: DATABASE_URL };
+const options = NODE_ENV === 'production' ? { connectionString: DATABASE_URL , ssl: { rejectUnauthorized: false } } : { connectionString: DATABASE_URL };
 
 const client = new pg.Client(options); // initiate pg DATABASE with specified url;
 
@@ -29,7 +29,7 @@ const client = new pg.Client(options); // initiate pg DATABASE with specified ur
 
 
 //set up the database
-\
+
 //set up enviroment vars
 const PORT = process.env.PORT || 3000 
 // set up our server
@@ -41,13 +41,13 @@ app.use(cors())
 //     res.send('woooork')
 // })
 // our needs rout 
-app.use('*', unFound)
 app.get('/location', handleLocation)
 
 app.get('/weather', handleweather)
 app.get('/parks', handleparks)
 app.get('/movie', handlemovie)
 app.get('/yelp', handleyelp)
+// app.use('*', unFound)
 
 
 client.connect().then( () => {
@@ -58,11 +58,13 @@ client.connect().then( () => {
 
 //controllers(modify our data)
 function  handleLocation(req,res){
+  console.log("hello");
 //get city from query that the user inter to explor
 const city = req.query.city
+console.log('helloo',city);
 //use city to requst data from DATABASE
 //$1 THE FIRST VALUE OF TABLE
-const citySql='SELECT * FROM TABLES WHERE search_query =$1; '
+const citySql='SELECT * FROM location WHERE search_query =$1; '
 const sqlArr =[city]
 //for the API
 const url ='https://us1.locationiq.com/v1/search.php'
@@ -73,6 +75,7 @@ const queryParans ={
   //to limit one response
   limit :1
 }
+
 //code to run query
 client.query(citySql,sqlArr)
 .then((dataFromDb)=>{
@@ -85,7 +88,7 @@ client.query(citySql,sqlArr)
  //make new instance fir the data
  const cityLocation = new Location(city,data.display_name,data.lat,data.lon)
  //store data in db
- const insertCity ='INSERT INTO TABLES (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4);'
+ const insertCity ='INSERT INTO location (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4);'
 client.query(insertCity,[city,data.display_name,data.lat,data.lon])
 //respone data to the clint
 res.send(cityLocation)
@@ -191,10 +194,10 @@ function  handleyelp (req,res) {
 
 
 //Errors
-function unFound (req,res) {
-  res.status(404).send('not found here')
+// function unFound (req,res) {
+//   res.status(404).send('not found here')
   
-}
+// }
 function internalError (res) {
   return (error)=>{
     res.send('there is wrong')
@@ -243,3 +246,4 @@ function Yelp(yelpData) {
   this.rating = yelpData.rating;
   this.url = yelpData.url;
 }
+
